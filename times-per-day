@@ -1,0 +1,50 @@
+#!/usr/bin/env ruby
+
+require 'set'
+
+def apply_term_to_range(term, range)
+  m = term.match /^(?<x>\*|\d+)(?:-(?<y>\d+))?(?:\/(?<i>\d+))?$/
+  if m
+    x = m["x"]
+    y = m["y"]
+    i = m["i"]
+    #puts "#{term} => #{m.inspect} #{x},#{y},#{i}"
+    if x == "*"
+      x,y = range.first, range.last
+    else
+      x = x.to_i
+      y = !y.nil? ? y.to_i : x
+    end
+    #puts "#{term} => #{m.inspect} #{x},#{y},#{i}"
+    i = !i.nil? ? i.to_i : 1
+    #puts "#{term} => #{m.inspect} #{x},#{y},#{i}"
+
+    ans = range.select {|n| n>=x and n<=y and (n % i) == 0}
+    #puts "apply_term_to_range #{term.inspect},#{range.inspect} => #{ans.inspect}"
+    ans
+  else
+    raise "Not sure how to match term '#{term}'"
+  end
+end
+
+def match_range(arg, range)
+  ans = arg.split(',').map {|term| apply_term_to_range(term, range)}.reduce(Set.new) {|s, n| s+n}.count
+  #puts "match_range #{arg.inspect},#{range} => #{ans}"
+  ans
+end
+
+def match_minutes_per_hour(minute)
+  match_range(minute, 0..59)
+end
+
+def match_hours_per_day(hour)
+  match_range(hour, 0..23)
+end
+
+$stdin.each_line do |line|
+  line.chomp
+  minute, hour, dayofmonth, month, dayofweek, therest = line.split ' '
+  times_per_day = match_minutes_per_hour(minute) * match_hours_per_day(hour)
+  puts "#{times_per_day} #{line}"
+end
+

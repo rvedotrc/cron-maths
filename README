@@ -1,0 +1,21 @@
+Quick hacky script to calculate how often cron jobs run, by reading the
+crontab.
+
+"times-per-day" reads lines from standard input, where each line should be in
+crontab form (e.g. "7,27 9-17 * * * do-something").  Each line is echoed to
+standard output, but preceded by the number of times this job runs per day
+(the day-of-week, day-of-month and month fields are ignored).
+
+e.g. given input
+
+  */5 * * * * do-something-one
+  21 9-16 * * * do-something-two
+
+then the output is
+
+  288 */5 * * * * do-something-one
+  8 21 9-16 * * * do-something-two
+
+because the first job runs 288 times per day, and the second one runs 8 times
+per day.
+
